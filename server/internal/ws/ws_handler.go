@@ -97,4 +97,26 @@ func (h *Handler) GetRooms(c *gin.Context) {
 	c.JSON(http.StatusOK, rooms)
 }
 
-func (h *Handler) GetClients()
+type ClientRes struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+}
+
+func (h *Handler) GetClients(c *gin.Context) {
+	var clients []ClientRes
+	roomId := c.Param("roomId")
+
+	if _, ok := h.hub.Rooms[roomId]; !ok {
+		clients = make([]ClientRes, 0)
+		c.JSON(http.StatusOK, clients)
+	}
+
+	for _, c := range h.hub.Rooms[roomId].Clients {
+		clients = append(clients, ClientRes{
+			ID:       c.ID,
+			Username: c.Username,
+		})
+	}
+
+	c.JSON(http.StatusOK, clients)
+}
